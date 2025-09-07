@@ -148,92 +148,74 @@
                 </ul>
             </div>
         </section>
-
+        <!-- Dealership Application -->
         <section id="dealer-form" class="py-5">
             <div class="container">
                 <h2 class="text-center mb-4">Apply for Dealership</h2>
-                <form class="row g-3">
 
+                <!-- Alerts -->
+                <div id="dealers-alert" class="alert d-none" role="alert"></div>
+
+                <form class="row g-3 needs-validation" id="dealerForm" novalidate enctype="multipart/form-data">
                     <!-- Personal Info -->
                     <div class="col-md-6">
-                        <input type="text" class="form-control" placeholder="Full Name" required>
+                        <input type="text" name="fullName" class="form-control" placeholder="Full Name" required>
+                        <div class="invalid-feedback">Please enter your full name.</div>
                     </div>
                     <div class="col-md-6">
-                        <input type="text" class="form-control" placeholder="Business Name" required>
-                    </div>
-                    <div class="col-md-6">
-                        <input type="tel" class="form-control" placeholder="Phone Number" required>
-                    </div>
-                    <div class="col-md-6">
-                        <input type="email" class="form-control" placeholder="Email Address" required>
-                    </div>
-                    <div class="col-12">
-                        <input type="text" class="form-control" placeholder="Business Address (City, State, Pincode)"
+                        <input type="text" name="businessName" class="form-control" placeholder="Business Name"
                             required>
-                    </div>
-
-                    <!-- Business Background -->
-                    <div class="col-md-6">
-                        <select class="form-select" required>
-                            <option selected disabled>Type of Business</option>
-                            <option>Retailer</option>
-                            <option>Distributor</option>
-                            <option>Wholesaler</option>
-                            <option>Contractor</option>
-                            <option>New Entrepreneur</option>
-                        </select>
+                        <div class="invalid-feedback">Please enter your business name.</div>
                     </div>
                     <div class="col-md-6">
-                        <input type="text" class="form-control" placeholder="Years of Experience (if any)">
+                        <input type="tel" name="phone" class="form-control" placeholder="Phone Number"
+                            pattern="[0-9+ -]{8,}" required>
+                        <div class="invalid-feedback">Please enter a valid phone number.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="email" name="email" class="form-control" placeholder="Email Address" required>
+                        <div class="invalid-feedback">Please enter a valid email.</div>
                     </div>
                     <div class="col-12">
-                        <input type="text" class="form-control"
-                            placeholder="Current Products Dealt (Cement, Steel, etc.)">
+                        <input type="text" name="address" class="form-control"
+                            placeholder="Business Address (City, State, Pincode)" required>
+                        <div class="invalid-feedback">Please enter your business address.</div>
                     </div>
 
-                    <!-- Infrastructure -->
+                    <!-- Business Intent -->
                     <div class="col-md-6">
-                        <input type="text" class="form-control" placeholder="Storage Capacity (Sq. Ft. / Tons)">
+                        <input type="number" name="expectedMonthlyBags" class="form-control" min="0"
+                            placeholder="Expected Monthly Order (Bags)">
                     </div>
                     <div class="col-md-6">
-                        <select class="form-select">
-                            <option selected disabled>Do you own delivery vehicles?</option>
-                            <option>Yes</option>
-                            <option>No</option>
+                        <select name="commitMinimumQty" class="form-select" required>
+                            <option value="" selected disabled>Willing to Commit to Minimum Quantity?</option>
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
                         </select>
+                        <div class="invalid-feedback">Please select an option.</div>
                     </div>
 
-                    <!-- Investment & Commitment -->
+                    <!-- Compliance -->
                     <div class="col-md-6">
-                        <input type="number" class="form-control" placeholder="Expected Monthly Order (Bags)">
-                    </div>
-                    <div class="col-md-6">
-                        <select class="form-select">
-                            <option selected disabled>Willing to Commit to Minimum Quantity?</option>
-                            <option>Yes</option>
-                            <option>No</option>
-                        </select>
-                    </div>
-
-                    <!-- Documents -->
-                    <div class="col-md-6">
-                        <input type="text" class="form-control" placeholder="GST / Business Registration Number">
+                        <input type="text" name="gstOrRegistration" class="form-control"
+                            placeholder="GST / Business Registration Number">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Upload Visiting Card / Business Proof</label>
-                        <input type="file" class="form-control">
-                    </div>
-
-
-                    <!-- Notes -->
-                    <div class="col-12">
-                        <textarea class="form-control" rows="4"
-                            placeholder="Tell us about your business or future plans"></textarea>
+                        <input type="file" name="proofFile" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
+                        <div class="form-text">Accepted: JPG, PNG, or PDF.</div>
                     </div>
 
                     <!-- Submit -->
                     <div class="col-12 text-center">
-                        <button type="submit" class="btn btn-primary px-5 py-2">Submit Application</button>
+                        <button type="submit" id="dealerSubmitBtn" class="btn btn-primary px-5 py-2">
+                            Submit Application
+                        </button>
+                        <div id="dealerLoading" class="spinner-border text-primary ms-3 d-none" role="status"
+                            style="width:1.5rem;height:1.5rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -342,9 +324,10 @@
                     <!-- Contact Info -->
                     <div class="col-lg-3 col-md-6">
                         <h5 class="text-white mb-4">Get In Touch</h5>
-                        <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>Bangalore, Karnataka, India</p>
-                        <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+91 98765 43210</p>
-                        <p class="mb-2"><i class="fa fa-envelope me-3"></i>support@msandbags.com</p>
+                        <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>#19, 11th Cross, Manjunathnagar,
+                            Bangalore, Karnataka, India</p>
+                        <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+91 90191 22229</p>
+                        <p class="mb-2"><i class="fa fa-envelope me-3"></i>maplemsands@gmail.com</p>
                         <div class="d-flex pt-2">
                             <a class="btn btn-outline-light btn-social" href="#"><i class="fab fa-facebook-f"></i></a>
                             <a class="btn btn-outline-light btn-social" href="#"><i class="fab fa-instagram"></i></a>
@@ -397,9 +380,9 @@
                         <div class="col-md-6 text-center text-md-end">
                             <div class="footer-menu">
                                 <a href="#">Home</a>
-                                <a href="#privacy">Privacy</a>
-                                <a href="#help">Help</a>
-                                <a href="#faq">FAQs</a>
+                                <a href="privacy_policy.html">Privacy Policy</a>
+                                <a href="t&c.html">Terms & Conditions</a>
+                                <a href="refund_policy.html">Refund Policy</a>
                             </div>
                         </div>
                     </div>
@@ -412,7 +395,67 @@
         <!-- Back to Top -->
         <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
     </div>
+    <script>
+        (function () {
+            const form = document.getElementById('dealerForm');
+            const alertBox = document.getElementById('dealers-alert');
+            const btn = document.getElementById('dealerSubmitBtn');
+            const loader = document.getElementById('dealerLoading');
 
+            function showAlert(type, msg) {
+                alertBox.className = 'alert alert-' + type;
+                alertBox.textContent = msg;
+                alertBox.classList.remove('d-none');
+            }
+
+            function setLoading(isLoading) {
+                btn.disabled = isLoading;
+                loader.classList.toggle('d-none', !isLoading);
+            }
+
+            // Bootstrap-style validation
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                alertBox.classList.add('d-none');
+
+                // client-side validation
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return;
+                }
+
+                try {
+                    setLoading(true);
+
+                    const formData = new FormData(form);
+                    // Optional: trim strings
+                    ['fullName', 'businessName', 'phone', 'email', 'address', 'gstOrRegistration'].forEach(k => {
+                        if (formData.get(k)) formData.set(k, formData.get(k).toString().trim());
+                    });
+
+                    const res = await fetch('http://localhost:8080/api/dealerships', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const text = await res.text();
+
+                    if (res.ok) {
+                        showAlert('success', 'Application submitted successfully! Your Application ID: ' + text);
+                        form.reset();
+                        form.classList.remove('was-validated');
+                    } else {
+                        showAlert('danger', 'Submission failed: ' + text);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showAlert('danger', 'Network error. Please try again.');
+                } finally {
+                    setLoading(false);
+                }
+            }, false);
+        })();
+    </script>
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>

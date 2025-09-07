@@ -30,6 +30,7 @@
 
   <!-- Template Stylesheet -->
   <link href="css/style.css" rel="stylesheet">
+
 </head>
 
 <body>
@@ -42,7 +43,6 @@
       </div>
     </div>
     <!-- Spinner End -->
-
 
     <!-- Navbar Start -->
     <div class="container-fluid nav-bar bg-transparent">
@@ -61,11 +61,10 @@
         <!-- Menu Items -->
         <div class="collapse navbar-collapse" id="navbarCollapse">
           <div class="navbar-nav ms-auto">
-            <a href="index.html" class="nav-item nav-link ">Home</a>
-            <a href="about.html" class="nav-item nav-link ">About</a>
+            <a href="index.html" class="nav-item nav-link">Home</a>
+            <a href="about.html" class="nav-item nav-link">About</a>
             <a href="products.html" class="nav-item nav-link">Products</a>
             <a href="dealership.html" class="nav-item nav-link">Dealership</a>
-
             <a href="contact.html" class="nav-item nav-link">Contact</a>
           </div>
 
@@ -78,11 +77,6 @@
       </nav>
     </div>
     <!-- Navbar End -->
-
-
-
-
-
 
     <!-- Order Section -->
     <div class="container py-5">
@@ -98,7 +92,7 @@
             </div>
             <div class="d-flex justify-content-between mb-2">
               <span>Price per Bag</span>
-              <span>₹300</span>
+              <span>₹<span id="unitPrice">300</span></span>
             </div>
             <div class="mb-3">
               <label class="form-label fw-bold">Quantity (Bags)</label>
@@ -113,9 +107,17 @@
 
             <hr>
 
+            <div class="d-flex justify-content-between mb-2">
+              <span>Subtotal</span>
+              <span id="subtotal">₹300</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span>GST (18%)</span>
+              <span id="gst">₹54</span>
+            </div>
             <div class="d-flex justify-content-between align-items-center p-3 bg-primary text-white rounded">
               <strong>Total</strong>
-              <strong id="total">₹300</strong>
+              <strong id="total">₹354</strong>
             </div>
 
           </div>
@@ -132,7 +134,7 @@
               </div>
               <div class="mb-3">
                 <label class="form-label">Phone Number</label>
-                <input type="tel" class="form-control" id="phone" required>
+                <input type="tel" class="form-control" id="phone" required pattern="[0-9]{10}">
               </div>
               <div class="mb-3">
                 <label class="form-label">Delivery Address</label>
@@ -148,14 +150,6 @@
       </div>
     </div>
 
-
-
-
-
-
-
-
-
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5 wow fadeIn" data-wow-delay="0.1s">
       <div class="container py-5">
@@ -164,9 +158,10 @@
           <!-- Contact Info -->
           <div class="col-lg-3 col-md-6">
             <h5 class="text-white mb-4">Get In Touch</h5>
-            <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>Bangalore, Karnataka, India</p>
-            <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+91 98765 43210</p>
-            <p class="mb-2"><i class="fa fa-envelope me-3"></i>support@msandbags.com</p>
+            <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>#19, 11th Cross, Manjunathnagar, Bangalore,
+              Karnataka, India</p>
+            <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+91 90191 22229</p>
+            <p class="mb-2"><i class="fa fa-envelope me-3"></i>maplemsands@gmail.com</p>
             <div class="d-flex pt-2">
               <a class="btn btn-outline-light btn-social" href="#"><i class="fab fa-facebook-f"></i></a>
               <a class="btn btn-outline-light btn-social" href="#"><i class="fab fa-instagram"></i></a>
@@ -218,9 +213,9 @@
             <div class="col-md-6 text-center text-md-end">
               <div class="footer-menu">
                 <a href="#">Home</a>
-                <a href="#privacy">Privacy</a>
-                <a href="#help">Help</a>
-                <a href="#faq">FAQs</a>
+                <a href="privacy_policy.html">Privacy Policy</a>
+                <a href="t&c.html">Terms & Conditions</a>
+                <a href="refund_policy.html">Refund Policy</a>
               </div>
             </div>
           </div>
@@ -228,7 +223,6 @@
       </div>
     </div>
     <!-- Footer End -->
-
 
     <!-- Back to Top -->
     <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
@@ -244,101 +238,194 @@
 
   <!-- Template Javascript -->
   <script src="js/main.js"></script>
-  <!-- Razorpay + Backend Integration -->
+
+  <!-- Razorpay -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <!-- Razorpay + Backend Integration + GST -->
   <script>
-    const pricePerBag = 300;
+    // --------- Pricing Config ----------
+    const pricePerBag = 300; // base price per bag (₹)
+    const gstRate = 0.18;    // 18%
+
+    // --------- Elements ----------
     const bagsInput = document.getElementById("bags");
+    const unitPriceSpan = document.getElementById("unitPrice");
+    const subtotalSpan = document.getElementById("subtotal");
+    const gstSpan = document.getElementById("gst");
     const totalDisplay = document.getElementById("total");
     const increaseBtn = document.getElementById("increase");
     const decreaseBtn = document.getElementById("decrease");
 
-    function updateTotal() {
-      let bags = parseInt(bagsInput.value) || 1;
-      if (bags < 1) bags = 1;
-      bagsInput.value = bags;
-      totalDisplay.textContent = "₹" + (bags * pricePerBag).toLocaleString();
+    // Utility: format INR
+    function inr(valueNumber) {
+      // Ensure integer rupees for display
+      const rounded = Math.round(valueNumber);
+      return "₹" + rounded.toLocaleString("en-IN");
     }
 
+    function computeTotals(qty) {
+      const subtotal = qty * pricePerBag;            // rupees
+      const gst = subtotal * gstRate;                // rupees
+      const grandTotal = subtotal + gst;             // rupees
+      // Round to rupees for safety (you can switch to paise if your backend expects it)
+      return {
+        qty,
+        subtotal: Math.round(subtotal),
+        gst: Math.round(gst),
+        grandTotal: Math.round(grandTotal)
+      };
+    }
+
+    function updateTotal() {
+      let bags = parseInt(bagsInput.value, 10) || 1;
+      if (bags < 1) bags = 1;
+      bagsInput.value = bags;
+
+      const { subtotal, gst, grandTotal } = computeTotals(bags);
+
+      unitPriceSpan.textContent = pricePerBag.toLocaleString("en-IN");
+      subtotalSpan.textContent = inr(subtotal);
+      gstSpan.textContent = inr(gst);
+      totalDisplay.textContent = inr(grandTotal);
+    }
+
+    // Quantity handlers
     increaseBtn.addEventListener("click", () => {
-      bagsInput.value = parseInt(bagsInput.value || 1) + 1;
+      bagsInput.value = (parseInt(bagsInput.value || 1, 10) + 1);
       updateTotal();
     });
 
     decreaseBtn.addEventListener("click", () => {
-      bagsInput.value = Math.max(1, parseInt(bagsInput.value || 1) - 1);
+      bagsInput.value = Math.max(1, parseInt(bagsInput.value || 1, 10) - 1);
       updateTotal();
     });
 
     bagsInput.addEventListener("input", updateTotal);
 
+    // Initialize totals on load
+    document.addEventListener("DOMContentLoaded", updateTotal);
+
+    // Validate form
+    function isFormValid() {
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const address = document.getElementById("address").value.trim();
+      if (!name || !phone || !address) return false;
+      if (!/^\d{10}$/.test(phone)) return false;
+      return true;
+    }
+
+    // Checkout click
     document.getElementById('rzp-button1').onclick = async function (e) {
       e.preventDefault();
 
-      let bags = parseInt(bagsInput.value) || 1;
-      let total = bags * pricePerBag;
+      if (!isFormValid()) {
+        alert("Please fill Name, 10-digit Phone, and Address before proceeding.");
+        return;
+      }
+      showLoader();
+      const bags = parseInt(bagsInput.value || 1, 10);
+      const { subtotal, gst, grandTotal } = computeTotals(bags);
 
-      // 1️⃣ Call backend to create Razorpay order
-      let orderResponse = await fetch(`https://msand-538402544038.asia-east1.run.app/api/payments/createOrder?amount=${total}&currency=INR`);
-      let orderData = await orderResponse.json();
+      try {
+        // 1) Create Razorpay Order on backend (amount is grandTotal including GST)
+        // NOTE: Your backend can choose whether 'amount' is in rupees or paise.
+        // If your backend expects paise, send grandTotal * 100 here instead.
+        const amountParam = encodeURIComponent(grandTotal); // rupees (adjust if backend expects paise)
+        const orderResponse = await fetch(
+          `http://localhost:8080/api/payments/createOrder?amount=${amountParam}&currency=INR`
+        );
 
-      var options = {
-        "key": "rzp_test_RD5WxKvx66ybL9", // Replace with your Razorpay Key ID
-        "amount": orderData.amount,
-        "currency": orderData.currency,
-        "order_id": orderData.id, // ✅ use backend-created order_id
-        "name": "M-Sand Bags",
-        "description": bags + " x 25 Kg Bag(s)",
-        "handler": function (response) {
-          // 2️⃣ Payment successful → Verify & Save order in backend
-          saveOrder(response);
-        },
-        "prefill": {
-          "name": document.getElementById("name").value,
-          "contact": document.getElementById("phone").value
-        },
-        "theme": {
-          "color": "#0d6efd"
+        if (!orderResponse.ok) {
+          throw new Error("Failed to create order");
         }
-      };
 
-      var rzp1 = new Razorpay(options);
-      rzp1.open();
-    }
+        const orderData = await orderResponse.json();
 
-    // 2️⃣ Verify and Save Order in Backend
-    function saveOrder(response) {
-      let bags = parseInt(bagsInput.value) || 1;
-      let totalAmount = bags * pricePerBag;
+        const options = {
+          key: "rzp_test_RD5WxKvx66ybL9", // TODO: replace with LIVE key in production
+          amount: orderData.amount,       // use backend-created amount
+          currency: orderData.currency || "INR",
+          order_id: orderData.id,         // backend-created order_id
+          name: "M-Sand Bags",
+          description: `${bags} x 25 Kg Bag(s) (incl. GST)`,
+          prefill: {
+            name: document.getElementById("name").value,
+            contact: document.getElementById("phone").value
+          },
+          theme: { color: "#0d6efd" },
+          handler: function (response) {
+            // 2) Payment successful → Verify & Save order in backend
+            showLoader();
+            saveOrder(response, { bags, subtotal, gst, grandTotal });
+          }
+        };
 
+        const rzp1 = new Razorpay(options);
+        hideLoader();
+        rzp1.open();
+
+      } catch (err) {
+        console.error(err);
+        alert("Unable to start payment. Please try again.");
+      }
+    };
+
+    // 2) Verify and Save Order in Backend
+    function saveOrder(response, totals) {
       const orderData = {
-        name: document.getElementById("name").value,
-        phone: document.getElementById("phone").value,
-        address: document.getElementById("address").value,
-        bags: bags,
-        totalAmount: totalAmount,
+        name: document.getElementById("name").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        address: document.getElementById("address").value.trim(),
+        bags: totals.bags,
+        subtotal: totals.subtotal,
+        gst: totals.gst,
+        totalAmount: totals.grandTotal,
         razorpayOrderId: response.razorpay_order_id,
         paymentId: response.razorpay_payment_id,
         signature: response.razorpay_signature
       };
 
-      fetch("https://msand-538402544038.asia-east1.run.app/api/orders/verify", {
+      fetch("http://localhost:8080/api/orders/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData)
       })
-        .then(response => response.text())
+        .then(resp => {
+          if (!resp.ok) throw new Error("Verification failed");
+          return resp.text();
+        })
         .then(data => {
+          hideLoader();
           alert("Payment verified & order placed! Order ID: " + data);
           window.location.href = "index.html";
         })
         .catch(error => {
+          hideLoader();
           console.error("Error saving order:", error);
           alert("Payment succeeded but verification failed. Contact support.");
         });
     }
+    function showLoader() {
+      document.getElementById("loaderOverlay").style.display = "flex";
+    }
+    function hideLoader() {
+      document.getElementById("loaderOverlay").style.display = "none";
+    }
+
   </script>
+  <!-- Fullscreen Loader -->
+  <!-- Fullscreen Loader -->
+  <div id="loaderOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(255,255,255,0.9); z-index:9999;
+            justify-content:center; align-items:center;">
+    <l-grid size="60" speed="1.5" color="black"></l-grid>
+  </div>
+
+  <!-- Loader Script -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/ldrs/dist/auto/grid.js"></script>
+
 
 </body>
 
