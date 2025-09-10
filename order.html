@@ -338,7 +338,7 @@
         const orderData = await orderResponse.json();
 
         const options = {
-          key: "rzp_test_RD5WxKvx66ybL9", // TODO: replace with LIVE key in production
+          key: "rzp_live_RFwdyzhmELMbvw", // TODO: replace with LIVE key in production
           amount: orderData.amount,       // use backend-created amount
           currency: orderData.currency || "INR",
           order_id: orderData.id,         // backend-created order_id
