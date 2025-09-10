@@ -426,7 +426,7 @@
                         if (formData.get(k)) formData.set(k, formData.get(k).toString().trim());
                     });
 
-                    const res = await fetch('http://localhost:8080/api/dealerships', {
+                    const res = await fetch('https://msand-538402544038.asia-east1.run.app/api/dealerships', {
                         method: 'POST',
                         body: formData
                     });

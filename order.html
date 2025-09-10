@@ -328,7 +328,7 @@
         // If your backend expects paise, send grandTotal * 100 here instead.
         const amountParam = encodeURIComponent(grandTotal); // rupees (adjust if backend expects paise)
         const orderResponse = await fetch(
-          `http://localhost:8080/api/payments/createOrder?amount=${amountParam}&currency=INR`
+          `https://msand-538402544038.asia-east1.run.app/api/payments/createOrder?amount=${amountParam}&currency=INR`
         );
 
         if (!orderResponse.ok) {
@@ -381,7 +381,7 @@
         signature: response.razorpay_signature
       };
 
-      fetch("http://localhost:8080/api/orders/verify", {
+      fetch("https://msand-538402544038.asia-east1.run.app/api/orders/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData)
